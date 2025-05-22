@@ -8,15 +8,11 @@ import jakarta.persistence.*;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User {
-    //Objects
-//    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//    LocalDate ld;
 
     //Variables
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
     private String dob;
     private String email;
@@ -34,11 +30,6 @@ public User(){}
         this.cpf = cpf;
         this.contact = contact;
     }
-
-//    public void convertDate(String dob){
-//        ld = LocalDate.parse(dob, dtf);
-//    }
-
 
     public Long getId() {
         return id;

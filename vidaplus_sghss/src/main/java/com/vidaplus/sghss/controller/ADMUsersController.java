@@ -17,6 +17,7 @@ public class ADMUsersController {
     @Autowired
     private ADMUsersRepository admUsersRepository;
 
+    // Get methods
     @GetMapping
     public ResponseEntity<List<ADMUsers>> getAllADMUsers(){
         List<ADMUsers> admUsersList = admUsersRepository.findAll();
@@ -28,10 +29,10 @@ public class ADMUsersController {
     @PostMapping("/signup")
     public ResponseEntity<?> signUpADMUsers(@RequestBody RegistrationRequest registrationRequest){
         if (admUsersRepository.existsByEmail(registrationRequest.getEmail())){
-            return new ResponseEntity<>("Email already exists!", HttpStatus.CONFLICT);
+            return new ResponseEntity<>("Este e-mail já existe!", HttpStatus.CONFLICT);
         }
         if (admUsersRepository.existsByCpf(registrationRequest.getCpf())){
-            return new ResponseEntity<>("CPF already exists!", HttpStatus.CONFLICT);
+            return new ResponseEntity<>("Este CPF já existe!", HttpStatus.CONFLICT);
         }
 
         ADMUsers newAdmUser = new ADMUsers(
