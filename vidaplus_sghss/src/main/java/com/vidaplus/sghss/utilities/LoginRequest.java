@@ -1,4 +1,4 @@
-package com.vidaplus.sghss.controller;
+package com.vidaplus.sghss.utilities;
 
 public class LoginRequest {
 

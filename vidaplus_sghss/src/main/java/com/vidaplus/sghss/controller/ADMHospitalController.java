@@ -2,6 +2,8 @@ package com.vidaplus.sghss.controller;
 
 import com.vidaplus.sghss.model.entities.ADMHospital;
 import com.vidaplus.sghss.repository.ADMHospitalRepository;
+import com.vidaplus.sghss.utilities.LoginRequest;
+import com.vidaplus.sghss.utilities.RegistrationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

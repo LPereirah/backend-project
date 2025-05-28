@@ -1,8 +1,8 @@
 package com.vidaplus.sghss.controller;
 
-import com.vidaplus.sghss.model.entities.ADMUsers;
 import com.vidaplus.sghss.model.entities.Patient;
 import com.vidaplus.sghss.repository.PatientRepository;
+import com.vidaplus.sghss.utilities.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +37,7 @@ public class PatientController {
         }
     }
 
-    //Create an object on db.
+    //Post.
     @PostMapping
     public ResponseEntity<Patient> createPatient(@RequestBody Patient patient){
         if (!patientRepository.existsByCpf(patient.getCpf())){
@@ -49,7 +49,9 @@ public class PatientController {
         }
     }
 
-    //Update an object.
+    //Special.
+
+    //Update.
     @PutMapping("/update/{id}")
     public ResponseEntity<Patient> updatePatient(@PathVariable Long id, @RequestBody Patient savedPatient){
         Optional<Patient> existingPatient = patientRepository.findById(id);

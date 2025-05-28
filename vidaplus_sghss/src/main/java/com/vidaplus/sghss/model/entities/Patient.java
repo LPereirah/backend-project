@@ -5,15 +5,19 @@ import jakarta.persistence.Entity;
 @Entity
 public class Patient extends User {
 
+    //Variables
     private String address;
 
+    //Constructors - begin.
     public Patient(){}
 
     public Patient(String name, String dob, String email, String password, String cpf, String contact, String address) {
         super(name, dob, email, password, cpf, contact);
         this.address = address;
     }
+    //Constructors - end.
 
+    // Getters and setters.
     public String getAddress() {
         return address;
     }
@@ -22,15 +26,4 @@ public class Patient extends User {
         this.address = address;
     }
 
-    @Override
-    public String toString() {
-        return  "id=" + getId() +
-                ", name='" + getName() + '\'' +
-                ", dob='" + getDob() + '\'' +
-                ", email='" + getEmail() + '\'' +
-                ", password='" + getPassword() + '\'' +
-                ", cpf='" + getCpf() + '\'' +
-                ", contact='" + getContact() + '\'' +
-                '}';
-    }
 }

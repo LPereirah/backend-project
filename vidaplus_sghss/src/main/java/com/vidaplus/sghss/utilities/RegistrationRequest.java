@@ -1,4 +1,4 @@
-package com.vidaplus.sghss.controller;
+package com.vidaplus.sghss.utilities;
 
 public class RegistrationRequest {
     private String name;
@@ -6,12 +6,32 @@ public class RegistrationRequest {
     private String email;
     private String password;
     private String cpf;
+    private String crm;
     private String contact;
 
     // Default constructor
     public RegistrationRequest() {
     }
 
+    //Constructor for Healthcare Professional validation
+    public RegistrationRequest(String name,
+                               String dob,
+                               String email,
+                               String password,
+                               String cpf,
+                               String crm,
+                               String contact) {
+
+        this.name = name;
+        this.dob = dob;
+        this.email = email;
+        this.password = password;
+        this.cpf = cpf;
+        this.crm = crm;
+        this.contact = contact;
+    }
+
+    // Generic constructor validation
     public RegistrationRequest(String name, String dob, String email, String password, String cpf, String contact) {
         this.name = name;
         this.dob = dob;
@@ -21,6 +41,7 @@ public class RegistrationRequest {
         this.contact = contact;
     }
 
+    // Getters and Setters
     public String getName() {
         return name;
     }
@@ -59,6 +80,14 @@ public class RegistrationRequest {
 
     public void setCpf(String cpf) {
         this.cpf = cpf;
+    }
+
+    public String getCrm() {
+        return crm;
+    }
+
+    public void setCrm(String crm) {
+        this.crm = crm;
     }
 
     public String getContact() {

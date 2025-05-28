@@ -1,7 +1,9 @@
 package com.vidaplus.sghss.controller;
 
-import com.vidaplus.sghss.model.entities.ADMUsers;
-import com.vidaplus.sghss.repository.ADMUsersRepository;
+import com.vidaplus.sghss.model.entities.ADMUser;
+import com.vidaplus.sghss.repository.ADMUserRepository;
+import com.vidaplus.sghss.utilities.LoginRequest;
+import com.vidaplus.sghss.utilities.RegistrationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,30 +14,30 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/vidaplus/adm-users")
-public class ADMUsersController {
+public class ADMUserController {
 
     @Autowired
-    private ADMUsersRepository admUsersRepository;
+    private ADMUserRepository admUserRepository;
 
     // Get methods
     @GetMapping
-    public ResponseEntity<List<ADMUsers>> getAllADMUsers(){
-        List<ADMUsers> admUsersList = admUsersRepository.findAll();
-        return new ResponseEntity<>(admUsersList, HttpStatus.OK);
+    public ResponseEntity<List<ADMUser>> getAllADMUsers(){
+        List<ADMUser> admUserList = admUserRepository.findAll();
+        return new ResponseEntity<>(admUserList, HttpStatus.OK);
 
     }
 
     // Create an ADMUser. Use the RegistrationRequest class to verify the information, then create or not.
     @PostMapping("/signup")
     public ResponseEntity<?> signUpADMUsers(@RequestBody RegistrationRequest registrationRequest){
-        if (admUsersRepository.existsByEmail(registrationRequest.getEmail())){
+        if (admUserRepository.existsByEmail(registrationRequest.getEmail())){
             return new ResponseEntity<>("Este e-mail já existe!", HttpStatus.CONFLICT);
         }
-        if (admUsersRepository.existsByCpf(registrationRequest.getCpf())){
+        if (admUserRepository.existsByCpf(registrationRequest.getCpf())){
             return new ResponseEntity<>("Este CPF já existe!", HttpStatus.CONFLICT);
         }
 
-        ADMUsers newAdmUser = new ADMUsers(
+        ADMUser newAdmUser = new ADMUser(
                 registrationRequest.getName(),
                 registrationRequest.getDob(),
                 registrationRequest.getEmail(),
@@ -44,18 +46,18 @@ public class ADMUsersController {
                 registrationRequest.getContact()
         );
 
-        ADMUsers admUserSaved = admUsersRepository.save(newAdmUser);
+        ADMUser admUserSaved = admUserRepository.save(newAdmUser);
         return new ResponseEntity<>(admUserSaved, HttpStatus.CREATED);
     }
 
     //Login feature. Verify the email. If exists, then compare the passwords.
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
-        Optional<ADMUsers> optionalADMUsers = admUsersRepository.findByEmail(loginRequest.getEmail());
+        Optional<ADMUser> optionalADMUsers = admUserRepository.findByEmail(loginRequest.getEmail());
         // Verify email.
         if (optionalADMUsers.isPresent()){
             // Verify password.
-            ADMUsers admUserLogin = optionalADMUsers.get();
+            ADMUser admUserLogin = optionalADMUsers.get();
             if (admUserLogin.getPassword().equals(loginRequest.getPassword())){
                 return new ResponseEntity<>(admUserLogin, HttpStatus.OK);
             }
@@ -84,10 +86,10 @@ public class ADMUsersController {
 
     // Update method. Verify if ID already exists, before trying to update.
     @PutMapping("/{id}")
-    public ResponseEntity<ADMUsers> updateADMUser(@PathVariable Long id, @RequestBody ADMUsers admUsers){
-        if (admUsersRepository.existsById(id)){
-            admUsers.setId(id);
-            ADMUsers admUpdated = admUsersRepository.save(admUsers);
+    public ResponseEntity<ADMUser> updateADMUser(@PathVariable Long id, @RequestBody ADMUser admUser){
+        if (admUserRepository.existsById(id)){
+            admUser.setId(id);
+            ADMUser admUpdated = admUserRepository.save(admUser);
             return new ResponseEntity<>(admUpdated, HttpStatus.OK);
         }
         else {
@@ -97,9 +99,9 @@ public class ADMUsersController {
 
     // Delete ADMUser. Use existsById to ensure if exists or not, then delete.
     @DeleteMapping("/{id}")
-    public ResponseEntity<ADMUsers> deleteById(@PathVariable Long id){
-        if (admUsersRepository.existsById(id)){
-            admUsersRepository.deleteById(id);
+    public ResponseEntity<ADMUser> deleteById(@PathVariable Long id){
+        if (admUserRepository.existsById(id)){
+            admUserRepository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         else {

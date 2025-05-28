@@ -2,14 +2,11 @@ package com.vidaplus.sghss.model.entities;
 
 import jakarta.persistence.*;
 
-//import java.time.LocalDate;
-//import java.time.format.DateTimeFormatter;
-
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User {
 
-    //Variables
+    //Variables - begin.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,8 +16,10 @@ public abstract class User {
     private String password;
     private String cpf;
     private String contact;
+    //Variables - end.
 
-public User(){}
+    //Constructors - begin.
+    public User(){}
 
     public User(String name, String dob, String email, String password, String cpf, String contact) {
         this.name = name;
@@ -30,7 +29,9 @@ public User(){}
         this.cpf = cpf;
         this.contact = contact;
     }
+    //Constructors - end.
 
+    //Getters and setters - begin.
     public Long getId() {
         return id;
     }
@@ -86,7 +87,9 @@ public User(){}
     public void setContact(String contact) {
         this.contact = contact;
     }
+    //Getters and setters - end.
 
+    //toString
     @Override
     public String toString() {
         return "User{" +
@@ -99,4 +102,5 @@ public User(){}
                 ", contact='" + contact + '\'' +
                 '}';
     }
+
 }

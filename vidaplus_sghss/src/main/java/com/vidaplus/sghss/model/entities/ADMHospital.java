@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 @Table(name = "adm_hospital")
 public class ADMHospital extends User{
 
+    //Constructors.
     public ADMHospital() {
         super();
     }

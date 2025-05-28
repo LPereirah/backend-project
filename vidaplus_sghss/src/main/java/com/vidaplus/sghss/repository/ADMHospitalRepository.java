@@ -8,7 +8,10 @@ import java.util.Optional;
 
 @Repository
 public interface ADMHospitalRepository extends JpaRepository<ADMHospital, Long> {
+
+    //Custom methods.
     Optional<ADMHospital> findByEmail(String email);
     boolean existsByEmail(String email);
     boolean existsByCpf(String cpf);
+
 }
