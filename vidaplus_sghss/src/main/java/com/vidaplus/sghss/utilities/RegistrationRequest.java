@@ -8,6 +8,7 @@ public class RegistrationRequest {
     private String cpf;
     private String crm;
     private String contact;
+    private String address;
 
     // Default constructor
     public RegistrationRequest() {
@@ -31,7 +32,26 @@ public class RegistrationRequest {
         this.contact = contact;
     }
 
-    // Generic constructor validation
+    //Constructor for Patient
+    public RegistrationRequest(String name,
+                               String dob,
+                               String email,
+                               String password,
+                               String cpf,
+                               String address,
+                               String contact,
+                               boolean isPatient) {
+
+        this.name = name;
+        this.dob = dob;
+        this.email = email;
+        this.password = password;
+        this.cpf = cpf;
+        this.contact = contact;
+        this.address = address;
+    }
+
+    //Generic constructor validation
     public RegistrationRequest(String name, String dob, String email, String password, String cpf, String contact) {
         this.name = name;
         this.dob = dob;
@@ -40,6 +60,7 @@ public class RegistrationRequest {
         this.cpf = cpf;
         this.contact = contact;
     }
+
 
     // Getters and Setters
     public String getName() {
@@ -96,5 +117,13 @@ public class RegistrationRequest {
 
     public void setContact(String contact) {
         this.contact = contact;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

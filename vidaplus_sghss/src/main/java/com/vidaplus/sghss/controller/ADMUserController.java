@@ -13,13 +13,16 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/vidaplus/adm-users")
+@RequestMapping("/adm-users")
 public class ADMUserController {
 
+    //Dependency injection
     @Autowired
     private ADMUserRepository admUserRepository;
 
-    // Get methods
+    //                  Endpoints
+
+    // Get
     @GetMapping
     public ResponseEntity<List<ADMUser>> getAllADMUsers(){
         List<ADMUser> admUserList = admUserRepository.findAll();
@@ -27,7 +30,9 @@ public class ADMUserController {
 
     }
 
-    // Create an ADMUser. Use the RegistrationRequest class to verify the information, then create or not.
+    //                  Post methods - Begin
+
+    // Sign up
     @PostMapping("/signup")
     public ResponseEntity<?> signUpADMUsers(@RequestBody RegistrationRequest registrationRequest){
         if (admUserRepository.existsByEmail(registrationRequest.getEmail())){
@@ -50,7 +55,7 @@ public class ADMUserController {
         return new ResponseEntity<>(admUserSaved, HttpStatus.CREATED);
     }
 
-    //Login feature. Verify the email. If exists, then compare the passwords.
+    //Login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
         Optional<ADMUser> optionalADMUsers = admUserRepository.findByEmail(loginRequest.getEmail());
@@ -70,8 +75,11 @@ public class ADMUserController {
         }
     }
 
+    //                  Post methods - End
 
-    //Generate report feature. Basic implementation.
+
+    //                  Special methods - begin
+    //Generate report feature
     @GetMapping("/report")
     public ResponseEntity<?> toGenerateReport(){
         return new ResponseEntity<>("Função de Gerar Relatório.", HttpStatus.OK);
@@ -83,8 +91,9 @@ public class ADMUserController {
         return new ResponseEntity<>("Função de Gerenciar Usuário.", HttpStatus.OK);
     }
 
+    //                  Special methods - End
 
-    // Update method. Verify if ID already exists, before trying to update.
+    //Update
     @PutMapping("/{id}")
     public ResponseEntity<ADMUser> updateADMUser(@PathVariable Long id, @RequestBody ADMUser admUser){
         if (admUserRepository.existsById(id)){
@@ -97,7 +106,7 @@ public class ADMUserController {
         }
     }
 
-    // Delete ADMUser. Use existsById to ensure if exists or not, then delete.
+    // Delete
     @DeleteMapping("/{id}")
     public ResponseEntity<ADMUser> deleteById(@PathVariable Long id){
         if (admUserRepository.existsById(id)){
@@ -107,7 +116,6 @@ public class ADMUserController {
         else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
     }
 
 }

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/vidaplus/hc-professional")
+@RequestMapping("/hc-professional")
 public class HealthcareProfessionalController {
 
     //Dependency Injection
@@ -89,7 +89,6 @@ public class HealthcareProfessionalController {
     }
     //                  Post methods - End.
 
-
     //                  Special methods - Begin.
     //Manage schedule feature.
     @GetMapping("/manage-schedule")
@@ -98,9 +97,9 @@ public class HealthcareProfessionalController {
     }
 
     //Update medical report feature.
-    @GetMapping("/medical-report")
-    public ResponseEntity<String> medicalReport(){
-        return new ResponseEntity<>("Função de Prescrição Médica.", HttpStatus.OK);
+    @GetMapping("/medical-record")
+    public ResponseEntity<String> medicalRecord(){
+        return new ResponseEntity<>("Função de Atualizar Prontuário.", HttpStatus.OK);
     }
 
     //Issue prescription feature.

@@ -13,21 +13,23 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/vidaplus/adm-hospital")
+@RequestMapping("adm-hospital")
 public class ADMHospitalController {
 
     //Dependency Injection
     @Autowired
     private ADMHospitalRepository admHospitalRepository;
 
-    //Get.
+    //                  Endpoints
+
+    //Get
     @GetMapping
     public ResponseEntity<List<ADMHospital>> getAllADMHospital(){
         List<ADMHospital> admHospitallist = admHospitalRepository.findAll();
         return new ResponseEntity<>(admHospitallist, HttpStatus.OK);
     }
 
-    //Get by id.
+    //Get by id
     @GetMapping("/{id}")
     public ResponseEntity<ADMHospital> getADMHospitalById(@PathVariable Long id){
         Optional<ADMHospital> optionalADMHospital = admHospitalRepository.findById(id);
@@ -40,7 +42,9 @@ public class ADMHospitalController {
         }
     }
 
-    //                  Post methods - Begin.
+    //                  Post methods - Begin
+
+    //Sign up
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody RegistrationRequest registrationRequest){
         if (admHospitalRepository.existsByEmail(registrationRequest.getEmail())){
@@ -63,6 +67,7 @@ public class ADMHospitalController {
         return new ResponseEntity<>(savedAdmHospital, HttpStatus.CREATED);
     }
 
+    //Login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
         Optional<ADMHospital> optionalADMHospital = admHospitalRepository.findByEmail(loginRequest.getEmail());
@@ -80,9 +85,9 @@ public class ADMHospitalController {
         }
 
     }
-    //                  Post methods - End.
+    //                  Post methods - End
 
-    //                  Special Methods - Begin.
+    //                  Special Methods - Begin
 
     //Analyze beds feature.
     @GetMapping("/beds")
@@ -90,20 +95,20 @@ public class ADMHospitalController {
         return new ResponseEntity<>("Função de Avaliar Leitos.", HttpStatus.OK);
     }
 
-    //Generate financial report feature.
+    //Generate financial report feature
     @GetMapping("/financial-report")
     public ResponseEntity<?> financialReport(){
         return new ResponseEntity<>("Função de Gerar Relatórios Financeiros.", HttpStatus.OK);
     }
 
-    //Generate supply report feature.
+    //Generate supply report feature
     @GetMapping("/supply-report")
     public ResponseEntity<?> supplyReport(){
         return new ResponseEntity<>("Função de Gerar Relatórios de Suprimentos.", HttpStatus.OK);
     }
-    //                  Special Methods - End.
+    //                  Special Methods - End
 
-    //Update.
+    //Update
     @PutMapping("{id}")
     public ResponseEntity<ADMHospital> updateAdmHospital(@PathVariable Long id, @RequestBody ADMHospital admHospital){
         if (admHospitalRepository.existsById(id)){
