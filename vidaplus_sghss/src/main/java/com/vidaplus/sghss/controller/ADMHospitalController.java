@@ -7,6 +7,7 @@ import com.vidaplus.sghss.utilities.RegistrationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,10 @@ public class ADMHospitalController {
     //Dependency Injection
     @Autowired
     private ADMHospitalRepository admHospitalRepository;
+
+    //To manage a bean of security and then encrypt password
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     //                  Endpoints
 
@@ -54,11 +59,13 @@ public class ADMHospitalController {
             return new ResponseEntity<>("Este CPF já existe!", HttpStatus.CONFLICT);
         }
 
+        String cryptPassword = passwordEncoder.encode(registrationRequest.getPassword());
+
         ADMHospital newAdmHospital = new ADMHospital(
                 registrationRequest.getName(),
                 registrationRequest.getDob(),
                 registrationRequest.getEmail(),
-                registrationRequest.getPassword(),
+                cryptPassword,
                 registrationRequest.getCpf(),
                 registrationRequest.getContact()
         );
@@ -73,8 +80,8 @@ public class ADMHospitalController {
         Optional<ADMHospital> optionalADMHospital = admHospitalRepository.findByEmail(loginRequest.getEmail());
         if (optionalADMHospital.isPresent()){
             ADMHospital admHospitalLogin = optionalADMHospital.get();
-            if (admHospitalLogin.getPassword().equals(loginRequest.getPassword())){
-                return new ResponseEntity<>("Acesso Liberado!", HttpStatus.OK);
+            if (passwordEncoder.matches(loginRequest.getPassword(), admHospitalLogin.getPassword())){
+                return new ResponseEntity<>(admHospitalLogin, HttpStatus.OK);
             }
             else {
                 return new ResponseEntity<>("Senha Incorreta!", HttpStatus.CONFLICT);

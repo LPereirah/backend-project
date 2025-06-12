@@ -7,6 +7,7 @@ import com.vidaplus.sghss.utilities.RegistrationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,12 @@ public class HealthcareProfessionalController {
     //Dependency Injection
     @Autowired
     HealthcareProfessionalRepository hcProfessionalRepository;
+
+    //To manage a bean of security and then encrypt password
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    //                  Endpoints
 
     //Get
     @GetMapping
@@ -58,11 +65,13 @@ public class HealthcareProfessionalController {
             return new ResponseEntity<>("Este CRM já existe!", HttpStatus.CONFLICT);
         }
 
+        String cryptPassword = passwordEncoder.encode(registrationRequest.getPassword());
+
         HealthcareProfessional newHcProfessional = new HealthcareProfessional(
                 registrationRequest.getName(),
                 registrationRequest.getDob(),
                 registrationRequest.getEmail(),
-                registrationRequest.getPassword(),
+                cryptPassword,
                 registrationRequest.getCpf(),
                 registrationRequest.getCrm(),
                 registrationRequest.getContact());
@@ -76,15 +85,15 @@ public class HealthcareProfessionalController {
         Optional<HealthcareProfessional> hcProfOptional = hcProfessionalRepository.findByEmail(loginRequest.getEmail());
         if (hcProfOptional.isPresent()){
             HealthcareProfessional hcProfessional = hcProfOptional.get();
-            if (loginRequest.getPassword().equals(hcProfessional.getPassword())){
-                return new ResponseEntity<>("Acesso Liberado!", HttpStatus.OK);
+            if (passwordEncoder.matches(loginRequest.getPassword(), hcProfessional.getPassword())){
+                return new ResponseEntity<>(hcProfessional, HttpStatus.OK);
             }
             else {
-                return new ResponseEntity<>("Senha incorreta!", HttpStatus.CONFLICT);
+                return new ResponseEntity<>("Senha Incorreta!", HttpStatus.CONFLICT);
             }
         }
         else {
-            return new ResponseEntity<>("Usuário não existe!", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Usuário não encontrado!", HttpStatus.NOT_FOUND);
         }
     }
     //                  Post methods - End.

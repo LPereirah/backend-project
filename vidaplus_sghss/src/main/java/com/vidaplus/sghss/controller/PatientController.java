@@ -7,6 +7,7 @@ import com.vidaplus.sghss.utilities.RegistrationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,10 @@ public class PatientController {
 
     @Autowired
     private PatientRepository patientRepository;
+
+    //To manage a bean of security and then encrypt password
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     //                  Endpoints
 
@@ -52,11 +57,13 @@ public class PatientController {
             return new ResponseEntity<>("Este CPF já existe!", HttpStatus.CONFLICT);
         }
 
+        String cryptPassword = passwordEncoder.encode(registrationRequest.getPassword());
+
         Patient newPatient = new Patient(
                 registrationRequest.getName(),
                 registrationRequest.getDob(),
                 registrationRequest.getEmail(),
-                registrationRequest.getPassword(),
+                cryptPassword,
                 registrationRequest.getCpf(),
                 registrationRequest.getContact(),
                 registrationRequest.getAddress()
@@ -74,15 +81,15 @@ public class PatientController {
         if (optionalPatient.isPresent()){
             Patient patient = optionalPatient.get();
 
-            if (patient.getPassword().equals(loginRequest.getPassword())){
+            if (passwordEncoder.matches(loginRequest.getPassword(), patient.getPassword())){
                 return new ResponseEntity<>(patient, HttpStatus.OK);
             }
-            else{
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            else {
+                return new ResponseEntity<>("Senha Incorreta!", HttpStatus.CONFLICT);
             }
         }
         else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Usuário não encontrado!", HttpStatus.NOT_FOUND);
         }
     }
     //                  Post methods - End
