@@ -2,28 +2,51 @@ package com.vidaplus.sghss.controller;
 
 import com.vidaplus.sghss.model.entities.ADMHospital;
 import com.vidaplus.sghss.repository.ADMHospitalRepository;
-import com.vidaplus.sghss.utilities.LoginRequest;
-import com.vidaplus.sghss.utilities.RegistrationRequest;
+import com.vidaplus.sghss.generic.LoginRequest;
+import com.vidaplus.sghss.generic.RegistrationRequest;
+import com.vidaplus.sghss.util.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("adm-hospital")
 public class ADMHospitalController {
 
-    //Dependency Injection
+    //                  Dependency injections - Begin
+
+    //Repository object
     @Autowired
     private ADMHospitalRepository admHospitalRepository;
 
-    //To manage a bean of security and then encrypt password
+    //Encrypt password object
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    //Authentication objects
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    //                  Dependency injections - End
+
+    //Variable
+    private static final Logger logger = LoggerFactory.getLogger(ADMHospitalController.class);
 
     //                  Endpoints
 
@@ -34,10 +57,11 @@ public class ADMHospitalController {
         return new ResponseEntity<>(admHospitallist, HttpStatus.OK);
     }
 
-    //Get by id
+    //Get by ID
     @GetMapping("/{id}")
     public ResponseEntity<ADMHospital> getADMHospitalById(@PathVariable Long id){
         Optional<ADMHospital> optionalADMHospital = admHospitalRepository.findById(id);
+
         if (optionalADMHospital.isPresent()){
             ADMHospital admHospital = optionalADMHospital.get();
             return new ResponseEntity<>(admHospital, HttpStatus.OK);
@@ -51,11 +75,13 @@ public class ADMHospitalController {
 
     //Sign up
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody RegistrationRequest registrationRequest){
+    public ResponseEntity<?> signupAdmHospital(@RequestBody RegistrationRequest registrationRequest){
         if (admHospitalRepository.existsByEmail(registrationRequest.getEmail())){
+            logger.warn("Usuário tentou se cadastrar sem sucesso com o e-mail: {}", registrationRequest.getEmail());
             return new ResponseEntity<>("Este e-mail já existe!", HttpStatus.CONFLICT);
         }
         if (admHospitalRepository.existsByCpf(registrationRequest.getCpf())){
+            logger.warn("Usuário tentou se cadastrar sem sucesso com o CPF: {}", registrationRequest.getCpf());
             return new ResponseEntity<>("Este CPF já existe!", HttpStatus.CONFLICT);
         }
 
@@ -67,36 +93,40 @@ public class ADMHospitalController {
                 registrationRequest.getEmail(),
                 cryptPassword,
                 registrationRequest.getCpf(),
-                registrationRequest.getContact()
-        );
+                registrationRequest.getContact());
 
         ADMHospital savedAdmHospital = admHospitalRepository.save(newAdmHospital);
+
+        logger.info("ADM - Hospital cadastrado com sucesso sob ID: {}", savedAdmHospital.getId());
         return new ResponseEntity<>(savedAdmHospital, HttpStatus.CREATED);
     }
 
     //Login
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
-        Optional<ADMHospital> optionalADMHospital = admHospitalRepository.findByEmail(loginRequest.getEmail());
-        if (optionalADMHospital.isPresent()){
-            ADMHospital admHospitalLogin = optionalADMHospital.get();
-            if (passwordEncoder.matches(loginRequest.getPassword(), admHospitalLogin.getPassword())){
-                return new ResponseEntity<>(admHospitalLogin, HttpStatus.OK);
-            }
-            else {
-                return new ResponseEntity<>("Senha Incorreta!", HttpStatus.CONFLICT);
-            }
-        }
-        else {
-            return new ResponseEntity<>("Usuário não encontrado!", HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<?> loginAdmHospital(@RequestBody LoginRequest loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            final String jwt = jwtUtil.generateToken(userDetails);
+
+            String role = userDetails.getAuthorities().isEmpty() ? "GENERIC_USER" : userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+
+            logger.info("Login de ADM - Hospital realizado com sucesso pelo e-mail: {}", loginRequest.getEmail());
+            return ResponseEntity.ok(Map.of("token", jwt));
+        } catch (Exception e) {
+            logger.warn("Falha ao realizar o login pelo e-mail: {}", loginRequest.getEmail());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválido");
+        }
     }
     //                  Post methods - End
 
     //                  Special Methods - Begin
 
-    //Analyze beds feature.
+    //Analyze beds feature
     @GetMapping("/beds")
     public ResponseEntity<?> analyzeBeds(){
         return new ResponseEntity<>("Função de Avaliar Leitos.", HttpStatus.OK);
@@ -116,7 +146,7 @@ public class ADMHospitalController {
     //                  Special Methods - End
 
     //Update
-    @PutMapping("{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ADMHospital> updateAdmHospital(@PathVariable Long id, @RequestBody ADMHospital admHospital){
         if (admHospitalRepository.existsById(id)){
             admHospital.setId(id);
@@ -130,7 +160,7 @@ public class ADMHospitalController {
     }
 
     //Delete
-    @DeleteMapping("{id}")
+    @DeleteMapping("/del/{id}")
     public ResponseEntity<?> deleteAdmHospital(@PathVariable Long id){
         if (admHospitalRepository.existsById(id)){
             admHospitalRepository.deleteById(id);

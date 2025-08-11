@@ -8,16 +8,17 @@ public class Patient extends User {
     //Variables
     private String address;
 
-    //Constructors - begin.
+    //Constructors - begin
     public Patient(){}
 
-    public Patient(String name, String dob, String email, String password, String cpf, String contact, String address) {
+    public Patient(String name, String dob, String email, String password, String cpf,
+                   String contact, String address) {
         super(name, dob, email, password, cpf, contact);
         this.address = address;
     }
-    //Constructors - end.
+    //Constructors - end
 
-    // Getters and setters.
+    // Getters and setters
     public String getAddress() {
         return address;
     }

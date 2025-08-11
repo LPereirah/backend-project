@@ -57,6 +57,4 @@ public class TelemedicineController {
         return new ResponseEntity<>("Função de registrar prescrições.", HttpStatus.OK);
     }
 
-
-
 }

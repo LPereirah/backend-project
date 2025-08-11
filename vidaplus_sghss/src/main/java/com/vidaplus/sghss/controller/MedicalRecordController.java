@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/medical-record")
 public class MedicalRecordController {
 
-    //Dependency Injection.
+    //Dependency Injection
     @Autowired
     MedicalRecordService mrService;
 
-    //Patient history feature.
+    //Patient history feature
     @GetMapping("/patient-history/{patientId}")
     public ResponseEntity<String> patientHistory(@PathVariable Long patientId){
         String history = mrService.patientHistory(patientId);
@@ -27,7 +27,7 @@ public class MedicalRecordController {
         }
     }
 
-    //Patient diagnostics feature.
+    //Patient diagnostics feature
     @GetMapping("/patient-diagnostics/{patientId}")
     public ResponseEntity<String> patientDiagnostics(@PathVariable Long patientId){
         String diagnostics = mrService.patientDiagnostics(patientId);
@@ -40,10 +40,9 @@ public class MedicalRecordController {
         }
     }
 
-    //To issue report feature.
+    //To issue report feature
     @GetMapping("/issue-report")
     public ResponseEntity<String> issueReport(){
-
         return new ResponseEntity<>(mrService.generateReports(), HttpStatus.OK);
     }
 

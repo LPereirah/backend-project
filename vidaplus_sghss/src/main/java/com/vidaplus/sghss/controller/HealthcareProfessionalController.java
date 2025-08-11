@@ -2,28 +2,51 @@ package com.vidaplus.sghss.controller;
 
 import com.vidaplus.sghss.model.entities.HealthcareProfessional;
 import com.vidaplus.sghss.repository.HealthcareProfessionalRepository;
-import com.vidaplus.sghss.utilities.LoginRequest;
-import com.vidaplus.sghss.utilities.RegistrationRequest;
+import com.vidaplus.sghss.generic.LoginRequest;
+import com.vidaplus.sghss.generic.RegistrationRequest;
+import com.vidaplus.sghss.util.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/hc-professional")
 public class HealthcareProfessionalController {
 
-    //Dependency Injection
+    //                  Dependency injections - Begin
+
+    //Repository object
     @Autowired
     HealthcareProfessionalRepository hcProfessionalRepository;
 
-    //To manage a bean of security and then encrypt password
+    //Encrypt password object
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    //Authentication objects
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    //                  Dependency injections - End
+
+    //Variable
+    private static final Logger logger = LoggerFactory.getLogger(HealthcareProfessional.class);
 
     //                  Endpoints
 
@@ -52,16 +75,21 @@ public class HealthcareProfessionalController {
         }
     }
 
-    //                  Post methods - Begin.
+    //                  Post methods - Begin
+
+    //Sign up
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody RegistrationRequest registrationRequest){
         if (hcProfessionalRepository.existsByEmail(registrationRequest.getEmail())){
+            logger.warn("Usuário tentou se cadastrar sem sucesso com o e-mail: {}", registrationRequest.getEmail());
             return new ResponseEntity<>("Este e-mail já existe!", HttpStatus.CONFLICT);
         }
         if (hcProfessionalRepository.existsByCpf(registrationRequest.getCpf())){
+            logger.warn("Usuário tentou se cadastrar sem sucesso com o CPF: {}", registrationRequest.getCpf());
             return new ResponseEntity<>("Este CPF já existe!", HttpStatus.CONFLICT);
         }
         if (hcProfessionalRepository.existsByCrm(registrationRequest.getCrm())){
+            logger.warn("Usuário tentou se cadastrar sem sucesso com o CRM: {}", registrationRequest.getCrm());
             return new ResponseEntity<>("Este CRM já existe!", HttpStatus.CONFLICT);
         }
 
@@ -76,57 +104,65 @@ public class HealthcareProfessionalController {
                 registrationRequest.getCrm(),
                 registrationRequest.getContact());
 
-        HealthcareProfessional saveHcProfessional = hcProfessionalRepository.save(newHcProfessional);
-        return new ResponseEntity<>(saveHcProfessional, HttpStatus.CREATED);
+        HealthcareProfessional savedHcProfessional = hcProfessionalRepository.save(newHcProfessional);
+
+        logger.info("Paciente cadastrado com sucesso sob ID: {}", savedHcProfessional.getId());
+        return new ResponseEntity<>(savedHcProfessional, HttpStatus.CREATED);
     }
 
+    //Login
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
-        Optional<HealthcareProfessional> hcProfOptional = hcProfessionalRepository.findByEmail(loginRequest.getEmail());
-        if (hcProfOptional.isPresent()){
-            HealthcareProfessional hcProfessional = hcProfOptional.get();
-            if (passwordEncoder.matches(loginRequest.getPassword(), hcProfessional.getPassword())){
-                return new ResponseEntity<>(hcProfessional, HttpStatus.OK);
-            }
-            else {
-                return new ResponseEntity<>("Senha Incorreta!", HttpStatus.CONFLICT);
-            }
-        }
-        else {
-            return new ResponseEntity<>("Usuário não encontrado!", HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> loginPatient(@RequestBody LoginRequest loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            final String jwt = jwtUtil.generateToken(userDetails);
+
+            String role = userDetails.getAuthorities().isEmpty() ? "GENERIC_USER" : userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+
+            logger.info("Login de Healthcare Professional realizado com sucesso pelo e-mail: {}", loginRequest.getEmail());
+            return ResponseEntity.ok(Map.of("token", jwt));
+        } catch (Exception e) {
+            logger.warn("Falha ao realizar o login pelo e-mail: {}", loginRequest.getEmail());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválido");
         }
     }
-    //                  Post methods - End.
+    //                  Post methods - End
 
-    //                  Special methods - Begin.
-    //Manage schedule feature.
+    //                  Special methods - Begin
+
+    //Manage schedule feature
     @GetMapping("/manage-schedule")
     public ResponseEntity<String> manageSchedule(){
         return new ResponseEntity<>("Função de Gerenciar Agenda.", HttpStatus.OK);
     }
 
-    //Update medical report feature.
+    //Update medical report feature
     @GetMapping("/medical-record")
     public ResponseEntity<String> medicalRecord(){
         return new ResponseEntity<>("Função de Atualizar Prontuário.", HttpStatus.OK);
     }
 
-    //Issue prescription feature.
+    //Issue prescription feature
     @GetMapping("/issue-prescription")
     public ResponseEntity<String> issuePrescription(){
         return new ResponseEntity<>("Função de Emitir Receita.", HttpStatus.OK);
     }
 
-    //Follow patient history feature.
+    //Follow patient history feature
     @GetMapping("/patient-history")
     public ResponseEntity<String> patientHistory(){
         return new ResponseEntity<>("Função de Acompanhar Histórico do Paciente.", HttpStatus.OK);
     }
 
-    //                  Special methods - End.
+    //                  Special methods - End
 
     //Update
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<HealthcareProfessional> updateHcProfessional(@PathVariable Long id,
                                                                        @RequestBody HealthcareProfessional hcProf){
         if (hcProfessionalRepository.existsById(id)){
@@ -140,7 +176,7 @@ public class HealthcareProfessionalController {
     }
 
     //Delete
-    @DeleteMapping("{id}")
+    @DeleteMapping("/del/{id}")
     public  ResponseEntity<?> deleteHcProf (@PathVariable Long id){
         if (hcProfessionalRepository.existsById(id)){
             hcProfessionalRepository.deleteById(id);

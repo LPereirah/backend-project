@@ -1,4 +1,4 @@
-package com.vidaplus.sghss.utilities;
+package com.vidaplus.sghss.generic;
 
 public class RegistrationRequest {
     private String name;
@@ -9,19 +9,15 @@ public class RegistrationRequest {
     private String crm;
     private String contact;
     private String address;
+    private String role;
 
     // Default constructor
     public RegistrationRequest() {
     }
 
     //Constructor for Healthcare Professional validation
-    public RegistrationRequest(String name,
-                               String dob,
-                               String email,
-                               String password,
-                               String cpf,
-                               String crm,
-                               String contact) {
+    public RegistrationRequest(String name, String dob, String email, String password,
+                               String cpf, String crm, String contact, String role) {
 
         this.name = name;
         this.dob = dob;
@@ -30,17 +26,12 @@ public class RegistrationRequest {
         this.cpf = cpf;
         this.crm = crm;
         this.contact = contact;
+        this.role = role;
     }
 
     //Constructor for Patient
-    public RegistrationRequest(String name,
-                               String dob,
-                               String email,
-                               String password,
-                               String cpf,
-                               String address,
-                               String contact,
-                               boolean isPatient) {
+    public RegistrationRequest(String name, String dob, String email, String password, String cpf,
+                               String address, String contact, String role, boolean isPatient) {
 
         this.name = name;
         this.dob = dob;
@@ -49,16 +40,19 @@ public class RegistrationRequest {
         this.cpf = cpf;
         this.contact = contact;
         this.address = address;
+        this.role = role;
     }
 
     //Generic constructor validation
-    public RegistrationRequest(String name, String dob, String email, String password, String cpf, String contact) {
+    public RegistrationRequest(String name, String dob, String email, String password,
+                               String cpf, String contact, String role) {
         this.name = name;
         this.dob = dob;
         this.email = email;
         this.password = password;
         this.cpf = cpf;
         this.contact = contact;
+        this.role = role;
     }
 
 
@@ -125,5 +119,13 @@ public class RegistrationRequest {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

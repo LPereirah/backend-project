@@ -14,13 +14,8 @@ public class HealthcareProfessional extends User{
     public HealthcareProfessional() {
     }
 
-    public HealthcareProfessional(String name,
-                                  String dob,
-                                  String email,
-                                  String password,
-                                  String cpf,
-                                  String crm,
-                                  String contact) {
+    public HealthcareProfessional(String name, String dob, String email,
+                                  String password, String cpf, String crm, String contact) {
         super(name, dob, email, password, cpf, contact);
 
         this.crm = crm;

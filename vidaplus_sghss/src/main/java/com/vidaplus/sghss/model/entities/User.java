@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User {
 
-    //Variables - begin.
+    //Variables - begin
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,9 +16,9 @@ public abstract class User {
     private String password;
     private String cpf;
     private String contact;
-    //Variables - end.
+    //Variables - end
 
-    //Constructors - begin.
+    //Constructors - begin
     public User(){}
 
     public User(String name, String dob, String email, String password, String cpf, String contact) {
@@ -29,9 +29,9 @@ public abstract class User {
         this.cpf = cpf;
         this.contact = contact;
     }
-    //Constructors - end.
+    //Constructors - end
 
-    //Getters and setters - begin.
+    //                  Getters and setters
     public Long getId() {
         return id;
     }
@@ -87,20 +87,6 @@ public abstract class User {
     public void setContact(String contact) {
         this.contact = contact;
     }
-    //Getters and setters - end.
 
-    //toString
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", dob='" + dob + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", cpf='" + cpf + '\'' +
-                ", contact='" + contact + '\'' +
-                '}';
-    }
 
 }
